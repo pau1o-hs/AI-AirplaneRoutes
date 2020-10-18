@@ -1,0 +1,10 @@
+4
+Sumacity 0 0
+Sanca 5 5
+Sampa 10 10
+Los-Santos 15 15
+4 Sumacity Los-Santos
+Sumacity Sanca 500
+Sumacity Sampa 300
+Sampa Los-Santos 600
+Sanca Los-Santos 300
