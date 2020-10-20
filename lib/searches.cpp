@@ -1,5 +1,7 @@
 #include "searches.hpp"
 
+#define NOTVIS 1000000000
+
 map<string, string> pred;
 
 void PrintPath(string end);
@@ -23,7 +25,7 @@ void BFS(map<string, vector<pair<string, RouteData>>> edge, map<string, double> 
     {
         string u = q.front();
         q.pop();
-
+        
         // GET ALL CONNECTIONS WITH CITY U
         For (i, 0, len(edge[u]))
         {
@@ -37,43 +39,57 @@ void BFS(map<string, vector<pair<string, RouteData>>> edge, map<string, double> 
             }
         }
     }
+
+    // PRINT DISTANCES
+    for (auto it = dist.begin(); it != dist.end(); it++) 
+    {
+        cout << "Distance to " << it->first << ": " << it->second << endl;
+    }
 }
 
 void AStar(map<string, Coord> city, map<string, vector<pair<string, RouteData>>> edge, map<string, double> &dist, string origin, string destiny)
 {
-    // INITIALIZE DISTANCES
-    for (auto it = edge.begin(); it != edge.end(); it++) dist[it->first] = 1000000000;
-    dist[origin] = 0;
-
     priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
-    pq.push({0, origin});
+    map<string, double> cost;
+
+    // INITIALIZE DISTANCES
+    for (auto it = edge.begin(); it != edge.end(); it++) cost[it->first] = NOTVIS;
 
     pred[origin] = "";
+    cost[origin] = 0;
+
+    pq.push({0, origin});
 
     while (!pq.empty())
     {
         string u = pq.top().second;
         pq.pop();
 
-        For (i, 0, len(edge[u]))
+        if (u == destiny) 
+        {
+            while (!pq.empty()) cost[pq.top().second] = NOTVIS, pq.pop();
+            break;
+        }
+        
+        // GET ALL CONNECTIONS WITH CITY U
+        For(i, 0, len(edge[u]))
         {
             // NEXT CITY
-            string v = edge[u][i].first;        // CITY NAME
-            double w = edge[u][i].second.price; // TRAVELL COST
+            string v = edge[u][i].first;               // CITY NAME
+            double w = edge[u][i].second.price;        // TRAVELL COST
 
             // EUCLIDIAN DISTANCE
-            double heuristic = EuclidianDistance(city, v, destiny);
-
-            // BETTER ROUTE
-            if (dist[v] > dist[u] + w + heuristic)
+            double heuristic = EuclidianDistance(city, v, destiny) / 2;
+            
+            // BETTER SOLUTION
+            if (cost[v] > cost[u] + w)
             {
-                dist[v] = dist[u] + w + heuristic;  // UPDATE DISTANCE
-                pq.push({dist[v], v});              // ADD TO QUEUE
+                cost[v] = cost[u] + w;
+                dist[v] = cost[v] + heuristic;
 
+                pq.push({dist[v], v});            // ADD TO QUEUE
                 pred[v] = u;
             }
-
-            if (v == destiny) goto END;
         }
     }
 
@@ -82,6 +98,17 @@ END:
     PrintPath(destiny);
     cout << endl;
 
+    cout << fixed << setprecision(2) << "Cost: " << cost[destiny] << endl << endl;
+
+    cout << "Not visited: ";
+
+    for (auto it = cost.begin(); it != cost.end(); it++) 
+    {
+        if (it->second == NOTVIS)
+            cout << it->first << ' ';
+    }
+
+    cout << endl;
     return;
 }
 

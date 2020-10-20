@@ -56,11 +56,5 @@ int main()
     
     // BFS(world.route, dist, origin);
     AStar(world.city, world.route, dist, origin, destiny);
-
-    // PRINT DISTANCES
-    for (auto it = dist.begin(); it != dist.end(); it++) 
-    {
-        cout << fixed << "Heeuristic to " << it->first << ": " << it->second << endl;
-    }
     return 0;
 }
